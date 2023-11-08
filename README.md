@@ -2,7 +2,7 @@ Build a social media website like Facebook. One can sign up by filling informati
 The technologies used are Node.js, Express, React with MUI.
 
 Add function: 
-first, request a friend, then approved or deny a friend request.
+User approved or deny a friend request before someone send a request.
 User can upload a video.
 One can add comments to only his/her friends'posts.
 
