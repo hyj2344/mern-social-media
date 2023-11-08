@@ -17,7 +17,10 @@ import {
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { PersistGate } from "redux-persist/integration/react";
-
+//With the Redux Persist library, developers can save the Redux store in persistent storage,
+//for example, the local storage. Therefore, even after refreshing the browser, the site state will still be preserved.
+//The state can be cleared only if they are cleared from cache.
+//Another option is session storage. It will be cleared when the tab is closed.
 const persistConfig = { key: "root", storage, version: 1 };
 const persistedReducer = persistReducer(persistConfig, authReducer);
 const store = configureStore({

@@ -4,25 +4,26 @@ import {
   LocationOnOutlined,
   WorkOutlineOutlined,
 } from "@mui/icons-material";
+import { useEffect, useState } from "react";
 import { Box, Typography, Divider, useTheme } from "@mui/material";
 import UserImage from "components/UserImage";
 import FlexBetween from "components/FlexBetween";
 import WidgetWrapper from "components/WidgetWrapper";
 import { useSelector } from "react-redux";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const UserWidget = ({ userId, picturePath }) => {
-  const [user, setUser] = useState(null);
   const { palette } = useTheme();
   const navigate = useNavigate();
-  const token = useSelector((state) => state.token);
+  // const user = useSelector((state) => state.user);
+  const [user, setUser] = useState(null);
   const dark = palette.neutral.dark;
   const medium = palette.neutral.medium;
   const main = palette.neutral.main;
-
+  const token = useSelector((state) => state.token);
   const getUser = async () => {
-    const response = await fetch(`http://localhost:3001/users/${userId}`, {
+    // const response = await fetch(`http://54.245.62.145:4205/users/${userId}`, {
+      const response = await fetch(`http://54.245.62.145:4205/users/${userId}`, {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -33,7 +34,6 @@ const UserWidget = ({ userId, picturePath }) => {
   useEffect(() => {
     getUser();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
   if (!user) {
     return null;
   }
@@ -45,7 +45,7 @@ const UserWidget = ({ userId, picturePath }) => {
     occupation,
     viewedProfile,
     impressions,
-    friends,
+    friends
   } = user;
 
   return (

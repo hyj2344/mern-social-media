@@ -20,7 +20,7 @@ const registerSchema = yup.object().shape({
   firstName: yup.string().required("required"),
   lastName: yup.string().required("required"),
   email: yup.string().email("invalid email").required("required"),
-  password: yup.string().required("required"),
+  password: yup.string().min(4).max(10).required("required"),
   location: yup.string().required("required"),
   occupation: yup.string().required("required"),
   picture: yup.string().required("required"),
@@ -58,13 +58,15 @@ const Form = () => {
   const register = async (values, onSubmitProps) => {
     // this allows us to send form info with image
     const formData = new FormData();
+
     for (let value in values) {
       formData.append(value, values[value]);
     }
     formData.append("picturePath", values.picture.name);
 
     const savedUserResponse = await fetch(
-      "http://localhost:3001/auth/register",
+      // "http://54.245.62.145:4205/auth/register",
+      "http://54.245.62.145:4205/auth/register",
       {
         method: "POST",
         body: formData,
@@ -72,14 +74,14 @@ const Form = () => {
     );
     const savedUser = await savedUserResponse.json();
     onSubmitProps.resetForm();
-
     if (savedUser) {
       setPageType("login");
     }
   };
 
   const login = async (values, onSubmitProps) => {
-    const loggedInResponse = await fetch("http://localhost:3001/auth/login", {
+    // const loggedInResponse = await fetch("http://54.245.62.145:4205/auth/login", {
+      const loggedInResponse = await fetch("http://54.245.62.145:4205/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(values),
@@ -122,7 +124,9 @@ const Form = () => {
           <Box
             display="grid"
             gap="30px"
+            //min:0, max:4
             gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+            //The sign & related to css compiler, like scss, and the sign > means direct child.
             sx={{
               "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
             }}
@@ -131,14 +135,20 @@ const Form = () => {
               <>
                 <TextField
                   label="First Name"
+                  //The blur event fires when an element has lost focus.
                   onBlur={handleBlur}
                   onChange={handleChange}
+                  //indicate line 35 firstName
                   value={values.firstName}
                   name="firstName"
+                  //mke the text box red
                   error={
+                    //Touched indicates that a field has been visited by the user.
                     Boolean(touched.firstName) && Boolean(errors.firstName)
                   }
+                  //show errors below text box
                   helperText={touched.firstName && errors.firstName}
+                  //sx prop is a shortcut for defining custom styles that has access to the theme.
                   sx={{ gridColumn: "span 2" }}
                 />
                 <TextField
@@ -182,12 +192,14 @@ const Form = () => {
                   <Dropzone
                     acceptedFiles=".jpg,.jpeg,.png"
                     multiple={false}
+                    //function handle files
                     onDrop={(acceptedFiles) =>
+                      //In line 26, a field called picture. This set the value of the field.
                       setFieldValue("picture", acceptedFiles[0])
                     }
                   >
-                    {({ getRootProps, getInputProps }) => (
-                      <Box
+                    {({ getRootProps, getInputProps, isDragActive }) => (
+                    <Box
                         {...getRootProps()}
                         border={`2px dashed ${palette.primary.main}`}
                         p="1rem"
@@ -195,7 +207,11 @@ const Form = () => {
                       >
                         <input {...getInputProps()} />
                         {!values.picture ? (
-                          <p>Add Picture Here</p>
+                                isDragActive ? (
+                                    <p>Drop the Picture here ...</p>
+                                  ) : (
+                                    <p>Add Picture Here</p>
+                                  )
                         ) : (
                           <FlexBetween>
                             <Typography>{values.picture.name}</Typography>
@@ -242,7 +258,10 @@ const Form = () => {
                 p: "1rem",
                 backgroundColor: palette.primary.main,
                 color: palette.background.alt,
-                "&:hover": { color: palette.primary.main },
+                "&:hover": {
+                  backgroundColor: palette.primary.light,
+                  color: palette.primary.main
+                }
               }}
             >
               {isLogin ? "LOGIN" : "REGISTER"}

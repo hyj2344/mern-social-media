@@ -9,7 +9,8 @@ const PostsWidget = ({ userId, isProfile = false }) => {
   const token = useSelector((state) => state.token);
 
   const getPosts = async () => {
-    const response = await fetch("http://localhost:3001/posts", {
+    // const response = await fetch("http://54.245.62.145:4205/posts", {
+      const response = await fetch("http://54.245.62.145:4205/posts", {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -19,7 +20,8 @@ const PostsWidget = ({ userId, isProfile = false }) => {
 
   const getUserPosts = async () => {
     const response = await fetch(
-      `http://localhost:3001/posts/${userId}/posts`,
+      // `http://54.245.62.145:4205/posts/${userId}/posts`,
+      `http://54.245.62.145:4205/posts/${userId}/posts`,
       {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
@@ -50,6 +52,7 @@ const PostsWidget = ({ userId, isProfile = false }) => {
           picturePath,
           userPicturePath,
           likes,
+          type,
           comments,
         }) => (
           <PostWidget
@@ -62,6 +65,7 @@ const PostsWidget = ({ userId, isProfile = false }) => {
             picturePath={picturePath}
             userPicturePath={userPicturePath}
             likes={likes}
+            type={type}
             comments={comments}
           />
         )

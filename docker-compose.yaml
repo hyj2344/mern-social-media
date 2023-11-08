@@ -1,0 +1,35 @@
+version: "3.8"
+services:
+  mongodb:
+    image: "mongo"
+    volumes:
+    # Named volumes:can be referred to by specific names
+      - data:/data/db
+  server:
+    build: ./server
+    ports:
+      - "3001:3001"
+    volumes:
+      - logs:/app/logs
+      # Host volumes:A host volume can be accessed from within a Docker container and is stored on the host
+      - ./server:/app
+      # Anonymous volumes
+      - /app/node_modules
+    # env_file:
+    #   - ./server/.env
+    depends_on:
+      - mongodb
+  client:
+    build: ./client
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client/src:/app/src
+    stdin_open: true
+    tty: true
+    depends_on:
+      - server
+
+volumes:
+  data:
+  logs:

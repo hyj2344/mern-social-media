@@ -33,6 +33,10 @@ const UserSchema = new mongoose.Schema(
       type: Array,
       default: [],
     },
+    friendsRequest: {
+      type: Array,
+      default: [],
+    },
     location: String,
     occupation: String,
     viewedProfile: Number,

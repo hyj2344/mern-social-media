@@ -1,4 +1,4 @@
-import { PersonAddOutlined, PersonRemoveOutlined } from "@mui/icons-material";
+import { PersonRemoveOutlined } from "@mui/icons-material";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -11,19 +11,16 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
   const navigate = useNavigate();
   const { _id } = useSelector((state) => state.user);
   const token = useSelector((state) => state.token);
-  const friends = useSelector((state) => state.user.friends);
-
   const { palette } = useTheme();
   const primaryLight = palette.primary.light;
   const primaryDark = palette.primary.dark;
   const main = palette.neutral.main;
   const medium = palette.neutral.medium;
 
-  const isFriend = friends.find((friend) => friend._id === friendId);
-
-  const patchFriend = async () => {
+  const removeFriend = async () => {
     const response = await fetch(
-      `http://localhost:3001/users/${_id}/${friendId}`,
+      // `http://54.245.62.145:4205/users/${_id}/remove/${friendId}`,
+      `http://54.245.62.145:4205/users/${_id}/remove/${friendId}`,
       {
         method: "PATCH",
         headers: {
@@ -37,12 +34,13 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
   };
 
   return (
-    <FlexBetween>
+    <FlexBetween gap="1rem">
       <FlexBetween gap="1rem">
         <UserImage image={userPicturePath} size="55px" />
         <Box
           onClick={() => {
             navigate(`/profile/${friendId}`);
+            //refresh page
             navigate(0);
           }}
         >
@@ -65,14 +63,10 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
         </Box>
       </FlexBetween>
       <IconButton
-        onClick={() => patchFriend()}
+        onClick={() => removeFriend()}
         sx={{ backgroundColor: primaryLight, p: "0.6rem" }}
       >
-        {isFriend ? (
-          <PersonRemoveOutlined sx={{ color: primaryDark }} />
-        ) : (
-          <PersonAddOutlined sx={{ color: primaryDark }} />
-        )}
+        <PersonRemoveOutlined sx={{ color: primaryDark }} />
       </IconButton>
     </FlexBetween>
   );

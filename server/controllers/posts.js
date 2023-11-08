@@ -4,13 +4,14 @@ import User from "../models/User.js";
 /* CREATE */
 export const createPost = async (req, res) => {
   try {
-    const { userId, description, picturePath } = req.body;
+    const { userId, description, picturePath, type } = req.body;
     const user = await User.findById(userId);
     const newPost = new Post({
       userId,
       firstName: user.firstName,
       lastName: user.lastName,
       location: user.location,
+      type,
       description,
       userPicturePath: user.picturePath,
       picturePath,
@@ -71,3 +72,22 @@ export const likePost = async (req, res) => {
     res.status(404).json({ message: err.message });
   }
 };
+
+export const addCommnets = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, comment } = req.body;
+    const post = await Post.findById(id);
+    const userComment = name.concat(': ', comment);
+    post.comments.push(userComment);
+    const updatedPost = await Post.findByIdAndUpdate(
+      id,
+      { comments: post.comments },
+      //return the new data
+      { new: true }
+    )
+    res.status(200).json(updatedPost);
+    }catch (err) {
+      res.status(404).json({ message: err.message });
+    }
+}

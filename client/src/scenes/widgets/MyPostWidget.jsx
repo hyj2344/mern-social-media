@@ -5,7 +5,6 @@ import {
   GifBoxOutlined,
   ImageOutlined,
   MicOutlined,
-  MoreHorizOutlined,
 } from "@mui/icons-material";
 import {
   Box,
@@ -24,11 +23,14 @@ import WidgetWrapper from "components/WidgetWrapper";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setPosts } from "state";
+import { useNavigate } from "react-router-dom";
 
 const MyPostWidget = ({ picturePath }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [isImage, setIsImage] = useState(false);
-  const [image, setImage] = useState(null);
+  const [isVideo, setIsVideo] = useState(false);
+  const [file, setFile] = useState(null);
   const [post, setPost] = useState("");
   const { palette } = useTheme();
   const { _id } = useSelector((state) => state.user);
@@ -41,24 +43,27 @@ const MyPostWidget = ({ picturePath }) => {
     const formData = new FormData();
     formData.append("userId", _id);
     formData.append("description", post);
-    if (image) {
-      formData.append("picture", image);
-      formData.append("picturePath", image.name);
+    if (file) {
+      formData.append("picture", file);
+      formData.append("picturePath", file.name);
+      formData.append("type", isImage?"image":"video");
     }
 
-    const response = await fetch(`http://localhost:3001/posts`, {
+    // const response = await fetch(`http://54.245.62.145:4205/posts`, {
+      const response = await fetch(`http://54.245.62.145:4205/posts`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
       body: formData,
     });
     const posts = await response.json();
     dispatch(setPosts({ posts }));
-    setImage(null);
+    setFile(null);
     setPost("");
+    navigate(0);
   };
 
   return (
-    <WidgetWrapper>
+    <WidgetWrapper mb="2rem">
       <FlexBetween gap="1.5rem">
         <UserImage image={picturePath} />
         <InputBase
@@ -73,7 +78,7 @@ const MyPostWidget = ({ picturePath }) => {
           }}
         />
       </FlexBetween>
-      {isImage && (
+      {(isImage || isVideo) && (
         <Box
           border={`1px solid ${medium}`}
           borderRadius="5px"
@@ -81,11 +86,11 @@ const MyPostWidget = ({ picturePath }) => {
           p="1rem"
         >
           <Dropzone
-            acceptedFiles=".jpg,.jpeg,.png"
+            acceptedFiles=".jpg,.jpeg,.png,.mp4"
             multiple={false}
-            onDrop={(acceptedFiles) => setImage(acceptedFiles[0])}
+            onDrop={(acceptedFiles) => setFile(acceptedFiles[0])}
           >
-            {({ getRootProps, getInputProps }) => (
+            {({ getRootProps, getInputProps, isDragActive }) => (
               <FlexBetween>
                 <Box
                   {...getRootProps()}
@@ -95,18 +100,22 @@ const MyPostWidget = ({ picturePath }) => {
                   sx={{ "&:hover": { cursor: "pointer" } }}
                 >
                   <input {...getInputProps()} />
-                  {!image ? (
-                    <p>Add Image Here</p>
+                  {!file ? (
+                    isDragActive ? (
+                      <p>Drop the file here ...</p>
+                    ) : (
+                      <p>{`Add ${isImage?"picture":"video"} Here`}</p>
+                    )
                   ) : (
                     <FlexBetween>
-                      <Typography>{image.name}</Typography>
+                      <Typography>{file.name}</Typography>
                       <EditOutlined />
                     </FlexBetween>
                   )}
                 </Box>
-                {image && (
+                {file && (
                   <IconButton
-                    onClick={() => setImage(null)}
+                    onClick={() => setFile(null)}
                     sx={{ width: "15%" }}
                   >
                     <DeleteOutlined />
@@ -119,9 +128,15 @@ const MyPostWidget = ({ picturePath }) => {
       )}
 
       <Divider sx={{ margin: "1.25rem 0" }} />
-
-      <FlexBetween>
-        <FlexBetween gap="0.25rem" onClick={() => setIsImage(!isImage)}>
+      <FlexBetween
+        flexDirection={isNonMobileScreens ? "row" : "column"}
+        gap="1rem"
+        sx={{ alignItems: isNonMobileScreens ? "center" : "flex-start" }}
+      >
+        <FlexBetween gap="0.25rem" onClick={() =>{
+          setIsImage(!isImage);
+          if(isVideo===true) setIsVideo(!isVideo);
+        }}>
           <ImageOutlined sx={{ color: mediumMain }} />
           <Typography
             color={mediumMain}
@@ -130,30 +145,28 @@ const MyPostWidget = ({ picturePath }) => {
             Image
           </Typography>
         </FlexBetween>
+        <FlexBetween gap="0.25rem" onClick={() =>{
+          if(isImage===true) setIsImage(!isImage);
+          setIsVideo(!isVideo);
+        }}>
+          <GifBoxOutlined sx={{ color: mediumMain }} />
+          <Typography
+            color={mediumMain}
+            sx={{ "&:hover": { cursor: "pointer", color: medium } }}
+          >
+            Clip
+          </Typography>
+        </FlexBetween>
 
-        {isNonMobileScreens ? (
-          <>
-            <FlexBetween gap="0.25rem">
-              <GifBoxOutlined sx={{ color: mediumMain }} />
-              <Typography color={mediumMain}>Clip</Typography>
-            </FlexBetween>
+        <FlexBetween gap="0.25rem">
+          <AttachFileOutlined sx={{ color: mediumMain }} />
+          <Typography color={mediumMain}>Attachment</Typography>
+        </FlexBetween>
 
-            <FlexBetween gap="0.25rem">
-              <AttachFileOutlined sx={{ color: mediumMain }} />
-              <Typography color={mediumMain}>Attachment</Typography>
-            </FlexBetween>
-
-            <FlexBetween gap="0.25rem">
-              <MicOutlined sx={{ color: mediumMain }} />
-              <Typography color={mediumMain}>Audio</Typography>
-            </FlexBetween>
-          </>
-        ) : (
-          <FlexBetween gap="0.25rem">
-            <MoreHorizOutlined sx={{ color: mediumMain }} />
-          </FlexBetween>
-        )}
-
+        <FlexBetween gap="0.25rem">
+          <MicOutlined sx={{ color: mediumMain }} />
+          <Typography color={mediumMain}>Audio</Typography>
+        </FlexBetween>
         <Button
           disabled={!post}
           onClick={handlePost}
